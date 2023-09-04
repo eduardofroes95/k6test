@@ -1,5 +1,5 @@
 import http, { request } from 'k6/http';
-import { check, group } from 'k6'; 
+import { check, group } from 'k6';
 import { Counter, Gauge, Rate, Trend } from 'k6/metrics';
 
 
@@ -25,23 +25,23 @@ const myTrend = new Trend('Taxa de espera')
 export default function () {
 
 
-  group('Teste1', function() {
+  group('Teste1', function () {
     const req = http.get('http://test.k6.io');
-myRate.add(req.status === 200);
-myTrend.add(req.timings.waiting)
+    myRate.add(req.status === 200);
+    myTrend.add(req.timings.waiting)
 
-check(req, {
-  'Status code 200': (r) => r.status == 200
-})
+    check(req, {
+      'Status code 200': (r) => r.status == 200
+    })
   })
 
-  group('Teste2', function() {
+  group('Teste2', function () {
     const req = http.get('http://test.k6.io');
-myRate.add(req.status === 200);
-myTrend.add(req.timings.waiting)
+    myRate.add(req.status === 200);
+    myTrend.add(req.timings.waiting)
 
-check(req, {
-  'Status code 200': (r) => r.status == 200
-})
+    check(req, {
+      'Status code 200': (r) => r.status == 200
+    })
   })
 }

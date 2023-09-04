@@ -1,15 +1,19 @@
 import http, { request } from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Counter, Gauge, Rate, Trend } from 'k6/metrics';
+import { SharedArray } from 'k6/data';
+import papaparse from 'https://jslib.k6.io/papaparse/5.1.1/index.js';
 
 
 
 export const options = {
 
     stages: [
-        { duration: '10s', target: 10 },
-        // {duration: '10s', target:10},
-        // {duration: '10s', target:0},
+        { duration: '5s', target: 5 },
+        { duration: '5s', target: 5 },
+        { duration: '10s', target: 50 },
+        { duration: '10s', target: 50 },
+        { duration: '5s', target: 0 }
     ],
     thresholds: {
         'http_req_failed{group:::Teste1}': ['rate === 0.00'],
@@ -21,6 +25,9 @@ export const options = {
 
 }
 
+const csvData = new SharedArray('Ler dados', function () {
+    return papaparse.parse(open('./usuarios.csv'), { header: true }).data
+})
 
 const myRate = new Rate('Status code 200');
 
@@ -30,27 +37,21 @@ export default function () {
     group('Teste1', function () {
 
         const BASE_URL = 'https://test-api.k6.io/';
-        const randomSixDigitNumber = Math.floor(100000 + Math.random() * 900000);
-        const user = `${randomSixDigitNumber}@mail.com`;
+        const user = csvData[Math.floor(Math.random() * csvData.length)].email
         const pass = 'user123';
 
-        console.log(user + pass)
+        console.log(user)
 
-        const req1 = http.post(`${BASE_URL}user/register/`, {
-
-            username: user,
-            first_name: "Crocodilo",
-            last_name: "Dino",
+        const req1 = http.post(`${BASE_URL}auth/token/login/`, {
             email: user,
             password: pass
-
-
         });
 
-        myRate.add(req1.status === 201);
+        myRate.add(req1.status === 200);
 
         check(req1, {
-            'Status code 201': (r) => r.status == 201
+            'Status code 200': (r) => r.status == 200,
+            'Token gerado': (r) => r.json('acess') != ''
         })
 
         sleep(1)
