@@ -1,6 +1,7 @@
 import http, { request } from 'k6/http';
 import { check, group } from 'k6';
 import { Counter, Gauge, Rate, Trend } from 'k6/metrics';
+import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
 
 
 
@@ -45,4 +46,11 @@ export default function () {
       'Status code 200': (r) => r.status == 200
     })
   })
+}
+
+
+export function handleSummary(data) {
+  return {
+    "summary.html": htmlReport(data),
+  };
 }
