@@ -2,12 +2,19 @@ import http, { request } from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Counter, Gauge, Rate, Trend } from 'k6/metrics';
 import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
+import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
 
 
 
 export const options = {
 
-    stages: [{ duration: '10s', target: 100 }],
+    stages: [
+        { duration: '10s', target: 15 },
+        // { duration: '5m', target: 35 },
+        // { duration: '50ms', target: 35 },
+        // { duration: '500m', target: 35 },
+        // { duration: '5ms', target: 35 },
+    ],
     thresholds: {
         'http_req_failed{group:::Teste1}': ['rate === 0.00'],
         'http_req_duration{group:::Teste1}': ['p(100) < 650'],
@@ -57,6 +64,11 @@ export default function (generateToken) {
 
 export function handleSummary(data) {
     return {
-      "summary.html": htmlReport(data),
+      "result.html": htmlReport(data),
+      stdout: textSummary(data, { indent: " ", enableColors: true }),
     };
   }
+
+
+  //Utiliza-se 80% da capacidade da aplicação
+  //Encontrar bugs relacionados a "condições de corrida" que aparecem esporadicamente, como: vazamento de memória e armazenamento no banco de dados

@@ -4,6 +4,7 @@ import { Counter, Gauge, Rate, Trend } from 'k6/metrics';
 import { SharedArray } from 'k6/data';
 import papaparse from 'https://jslib.k6.io/papaparse/5.1.1/index.js';
 import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
+import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
 
 
 
@@ -11,10 +12,11 @@ export const options = {
 
     stages: [
         { duration: '5s', target: 5 },
-        { duration: '5s', target: 5 },
-        { duration: '10s', target: 50 },
-        { duration: '10s', target: 50 },
-        { duration: '5s', target: 0 }
+        // { duration: '10s', target: 20 },
+        // { duration: '10s', target: 50 },
+        // { duration: '15s', target: 70 },
+        // { duration: '10s', target: 90 },
+        // { duration: '15s', target: 0 },
     ],
     thresholds: {
         'http_req_failed{group:::Teste1}': ['rate === 0.00'],
@@ -41,12 +43,12 @@ export default function () {
         const user = csvData[Math.floor(Math.random() * csvData.length)].email
         const pass = 'user123';
 
-        console.log(user)
-
-        const req1 = http.post(`${BASE_URL}auth/token/login/`, {
+        const data = {
             email: user,
             password: pass
-        });
+        }
+
+        const req1 = http.post(`${BASE_URL}auth/token/login/`, data)
 
         myRate.add(req1.status === 200);
 
@@ -75,6 +77,13 @@ export default function () {
 
 export function handleSummary(data) {
     return {
-      "summary.html": htmlReport(data),
+      "result.html": htmlReport(data),
+      stdout: textSummary(data, { indent: " ", enableColors: true }),
     };
   }
+
+
+  //Verifica o comportamento do sistema em condições extremas
+  //Verifica a capacidade máxima de usuários
+  //Verifica o ponto de ruptura
+  //Verifica se após estressar a aplicação e diminuir a carga o sistema se recupera sem intervenção manual

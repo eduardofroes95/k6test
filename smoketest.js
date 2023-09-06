@@ -2,13 +2,14 @@ import http, { request } from 'k6/http';
 import { check, group } from 'k6';
 import { Counter, Gauge, Rate, Trend } from 'k6/metrics';
 import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
+import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
 
 
 
 export const options = {
 
-  vus: 1,
-  duration: '30s',
+  vus: 5,
+  duration: '10s',
   thresholds: {
     'http_req_failed{group:::Teste1}': ['rate === 0.00'],
     'http_req_failed{group:::Teste2}': ['rate === 0.00'],
@@ -51,6 +52,10 @@ export default function () {
 
 export function handleSummary(data) {
   return {
-    "summary.html": htmlReport(data),
+    "result.html": htmlReport(data),
+    stdout: textSummary(data, { indent: " ", enableColors: true }),
   };
 }
+
+
+//Verifica se alguma alteração recente impactou no tempo de resposta das requisições
